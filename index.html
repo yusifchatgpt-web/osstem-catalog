@@ -473,8 +473,7 @@ function renderManager(){
       ${tel?`<a class="btn btn-line" href="tel:+${tel}">${I.phone}Позвонить</a>`:""}
       ${INBOX.whatsapp?`<a class="btn btn-line" href="https://wa.me/${digits(INBOX.whatsapp)}?text=${encodeURIComponent("Здравствуйте! Вопрос по каталогу Osstem. Менеджер: "+M.name)}" target="_blank" rel="noopener">${I.chat}Написать</a>`:(INBOX.telegram?`<a class="btn btn-line" href="https://t.me/${INBOX.telegram}" target="_blank" rel="noopener">${I.chat}Написать</a>`:"")}
       <button class="btn btn-ink" type="button" id="toCat">Открыть каталог</button>
-    </div>
-    <p class="mgr-note">Заявка из каталога придёт напрямую ${esc(M.dat||M.name)}. Офис: <span class="mono">${esc(DEALER.phone)}</span>, ${esc(DEALER.hours)}.</p>`;
+    </div>`;
   $("#toCat").onclick = () => scrollToEl($("#rail"));
   $("#chip").onclick = () => scrollTo({top:0,behavior:motion()});
 }
@@ -682,7 +681,7 @@ function openCart(){
         <div class="field"><label for="fCity">Город</label><input id="fCity" value="${esc(form.city)}" placeholder="Ростов-на-Дону"></div>
       </div>
       <div class="field"><label for="fComment">Комментарий</label><textarea id="fComment" placeholder="Сроки, позиции не из каталога, удобное время для звонка">${esc(form.comment)}</textarea></div>
-      <div class="mgr-line"><span class="ava">${esc(M.name[0])}</span><span>Заявку получит менеджер <b>${esc(M.name)}</b></span></div>
+      <div class="mgr-line"><span class="ava">${esc(M.name[0])}</span><span>Ваш менеджер: <b>${esc(M.name)}</b></span></div>
       <div class="err" id="err" hidden>Укажите имя и телефон, чтобы менеджер мог связаться с вами.</div>
       <button class="big" type="submit">Отправить заявку</button>
     </form>`);
@@ -723,14 +722,14 @@ function openSend(){
   openSheet(`
     <div class="ok-ic">${I.check}</div>
     <h2 style="margin-top:14px">Заявка собрана</h2>
-    <p class="lead">Отправьте её ${esc(M.dat||M.name)}: текст уже готов, в нём ваши контакты и состав заказа.</p>
+    <p class="lead">Отправьте её в Dental Market: текст уже готов, в нём ваши контакты и состав заказа.</p>
     <div class="sendlist">
       ${wa?`<a class="wa" href="${wa}" target="_blank" rel="noopener">${I.chat}Отправить в WhatsApp</a>`:""}
       ${tg?`<a class="tg" id="tgBtn" href="${tg}" target="_blank" rel="noopener">Отправить в Telegram</a>`:""}
       <button class="cp" type="button" id="cp">Скопировать текст</button>
     </div>
     ${tg?`<p class="hint">Для Telegram текст копируется автоматически: вставьте его в чат.</p>`:""}
-    ${!wa&&!tg?`<p class="hint">Скопируйте текст и отправьте ${esc(M.dat||M.name)}${M.phone?` на номер ${esc(M.phone)}`:""}.</p>`:""}
+    ${!wa&&!tg?`<p class="hint">Скопируйте текст и отправьте в Dental Market.</p>`:""}
     <div class="lbl">Текст заявки</div>
     <pre class="msg" id="msg">${esc(msg)}</pre>
     <button class="ghost" type="button" id="newReq">Очистить и начать заново</button>`);
