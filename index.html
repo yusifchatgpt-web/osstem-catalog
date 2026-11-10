@@ -95,6 +95,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .search svg{position:absolute;left:14px;top:50%;translate:0 -50%;color:var(--faint)}
 .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px))}
 .tabs::-webkit-scrollbar{display:none}
+@media(min-width:760px) and (hover:hover){.tabs{flex-wrap:wrap;overflow:visible;margin-inline:0;padding-inline:0}}
 .tab{flex:none;height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:500;font-size:14px;white-space:nowrap;display:flex;align-items:center;gap:6px}
 .tab i{font:400 11px var(--mono);font-style:normal;color:var(--faint)}
 .tab[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
@@ -518,6 +519,7 @@ function renderTabs(){
   const a = $("#tabs .tab[aria-pressed=true]"), tb=$("#tabs"); if (a) { const l=a.offsetLeft-tb.offsetLeft-16, r=l+a.offsetWidth+32; if (l<tb.scrollLeft) tb.scrollLeft=l; else if (r>tb.scrollLeft+tb.clientWidth) tb.scrollLeft=r-tb.clientWidth; }
 }
 $("#tabs").addEventListener("click", e => { const b=e.target.closest(".tab"); if(!b) return; setCat(b.dataset.c); const r=$("#rail"); if (r.getBoundingClientRect().top>70) return; scrollToEl(r); });
+$("#tabs").addEventListener("wheel",e=>{const t=e.currentTarget; if(t.scrollWidth>t.clientWidth && Math.abs(e.deltaY)>Math.abs(e.deltaX)){t.scrollLeft+=e.deltaY; e.preventDefault();}},{passive:false});
 let qt; $("#q").addEventListener("input", e => { clearTimeout(qt); qt=setTimeout(()=>{ query=e.target.value.trim().toLowerCase().replace(/ё/g,"е"); renderList(); },120); });
 
 const priceLine = p => p.p==null ? `<span>По запросу</span>` : (p.pm>p.p ? `<small>от </small>${rub(p.p)}` : rub(p.p));
