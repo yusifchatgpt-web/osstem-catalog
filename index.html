@@ -467,7 +467,7 @@ function renderManager(){
   $("#chipAva").textContent = M.name[0]; $("#chipName").textContent = M.name;
   const tel = digits(M.phone);
   $("#mgr").innerHTML = `
-    <div class="mgr-h"><span class="ava">${esc(M.name[0])}</span><div><small>Ваш менеджер Dental Market</small><b>${esc(M.name)}</b><small>${esc(M.area)}</small></div></div>
+    <div class="mgr-h"><span class="ava">${esc(M.name[0])}</span><div><small>Ваш персональный менеджер</small><b>${esc(M.name)}</b><small>${esc(M.area)}</small></div></div>
     ${M.phone?`<div class="mgr-phone">${esc(M.phone)}</div>`:""}
     <div class="mgr-actions">
       ${tel?`<a class="btn btn-line" href="tel:+${tel}">${I.phone}Позвонить</a>`:""}
@@ -681,7 +681,7 @@ function openCart(){
         <div class="field"><label for="fCity">Город</label><input id="fCity" value="${esc(form.city)}" placeholder="Ростов-на-Дону"></div>
       </div>
       <div class="field"><label for="fComment">Комментарий</label><textarea id="fComment" placeholder="Сроки, позиции не из каталога, удобное время для звонка">${esc(form.comment)}</textarea></div>
-      <div class="mgr-line"><span class="ava">${esc(M.name[0])}</span><span>Ваш менеджер: <b>${esc(M.name)}</b></span></div>
+      <div class="mgr-line"><span class="ava">${esc(M.name[0])}</span><span>Ваш персональный менеджер: <b>${esc(M.name)}</b></span></div>
       <div class="err" id="err" hidden>Укажите имя и телефон, чтобы менеджер мог связаться с вами.</div>
       <button class="big" type="submit">Отправить заявку</button>
     </form>`);
