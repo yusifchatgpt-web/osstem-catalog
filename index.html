@@ -275,7 +275,6 @@ pre.msg{white-space:pre-wrap;font:400 12.5px/1.55 var(--mono);background:var(--s
 <header class="top gut" id="top">
   <div class="wrap">
     <a class="mark" href="#top" aria-label="Dental Market"><img class="logo" src="data:image/webp;base64,UklGRkYEAABXRUJQVlA4IDoEAABwGQCdASqCAIIAPikUiUMhoSERCzRcGAKEtLdx2AewpJlMVmerZrZrDgs8ve1XoBVKF5H9x/Q3/fekf+i3RH+A8CeqJ/A/xApAT/b/oB/vPUA5AD8C/gB6iPoVzgn7mfwr3AOqf/QAOm5GXBGogZjDGE6lRhgjTmrPQ9h3/7vyj203jrJktxFnMZAzGOyiU+SryeOc5GhLz7El5rz+TzGhF/HDL4xp+xotjiF4ZYdma5vSSsng0AMIbawpi9Y2Y7+9AlRskxJiTEmJMSYk1AeHZMtQAAD+/4Re//ziX/62/8Beh/SwtEdPu0hYOA1X0TbxY4jF5x+jUi7NOwCdr1gz+46T8Pd7GL7ah/mIwnoB+sRu2cBwICqZmp2M4S0ZfoleP7ME2FZjOdJKfCiNA87GX2p3ZzMebkyv6Av8j+0VTo+xdp/c62ThftXcLvCrW3G2c9r+14hNpOsh6VViK+M40OKRZ0Y89mN08xYEMe9jT1w+8UFWZ7z4W9bLsNC3bv/+cyEyvRadzrMsn9ogOtwKjHVvwOutBkFXWRYQwGw743rShWPdeMCngmo6cDa7AX/yLilySCv/fu8SgL8mMax7j6oSgjQNyI8khfzX8FEclrAi/qi9iHJx8SYClJI5aIbt//eMzBJcqVvl0xv8v0P01MECZRlb4Ur0ZlRm3l2MTopgBxrr72s1tSMblQT76tz9ZGW/yptx/OlAdZ+2sTauw/6Uruo/zfzhb+Fiexk264WDVQen/4mMXXP+16/yI/PG1hhTROY5HQRCctoBFbshXlBMuVN43LJij51k+FAa//3fDb3Xhu6TRygvwG0o3iPvx3d8gzQ9XwUZUBQI2+Oj49KmwYK0VAwewqNMrxutZ2QAcf5y2tyn+1X+08RZCBkOaSgbqhJO0TEOsIkAfQR/ntL5BxgL1v8LfKSIWZBWX+sxkO0uDTDUrGkBpOGcySlxRJ1O2XtdDvgGCNGM2ryfKa2jukOPiQIJEkm+VsLKSyNZTIcGZpRIs31alI8tJ8WpUhkmdbXMGnsAdCDVuhR4nkRBgTSHRfugTcyWn6vhnyv/hNxdla5n2xP6r6aUuYEaK3Nil6x7H7gXODphXqUP02kKSB5x/kUcRp5DWfLTV1D+9LyrlLkB01B4slBrxE5fOQ1rU6KUr1qt1CqLTBpDPxK8DVs4IRfMgw/3xJlJowLk4NUcrJR+r+qzNBvO9CADKyOrOT987h/owX7mv8LiCIddOa6vgDxm1NhwsbRRvLN7NsZXWvOfDcNksABxi7VA3Y/fJM+QbvEpNShQ0/bdyIWySXU/9H2kXZ/RTCn6CXOdk2D3Vl+YT/Y3N/6Uq6Po6v0THNkqnIABIkiZ09wXlEhSFg/Hk+29lo3ZJeDB5sV6Nxe+KnSZhGh8JAKAMMHJug06qYIrybAlsKOxP8i7iYEnLwIbETcAAA==" alt="Dental Market" width="38" height="38"><span class="mk"><b>DENTAL MARKET</b><small>официальный дилер Osstem</small></span></a>
-    <button class="mgr-chip" type="button" id="chip"><span class="ava" id="chipAva"></span><span id="chipName"></span></button>
   </div>
 </header>
 
@@ -470,7 +469,6 @@ const MK = pickManager(), M = MANAGERS[MK];
 const digits = s => String(s||"").replace(/\D/g,"");
 
 function renderManager(){
-  $("#chipAva").textContent = M.name[0]; $("#chipName").textContent = M.name;
   const tel = digits(M.phone);
   $("#mgr").innerHTML = `
     <div class="mgr-h"><span class="ava">${esc(M.name[0])}</span><div><small>Ваш персональный менеджер</small><b>${esc(M.name)}</b><small>${esc(M.area)}</small></div></div>
@@ -481,7 +479,6 @@ function renderManager(){
       <button class="btn btn-ink" type="button" id="toCat">Открыть каталог</button>
     </div>`;
   $("#toCat").onclick = () => scrollToEl($("#rail"));
-  $("#chip").onclick = () => scrollTo({top:0,behavior:motion()});
 }
 const motion = () => matchMedia("(prefers-reduced-motion:reduce)").matches ? "auto" : "smooth";
 function scrollToEl(el){ const y = el.getBoundingClientRect().top + scrollY - 56; scrollTo({top:y,behavior:motion()}); }
