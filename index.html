@@ -6,7 +6,7 @@
 <style>
 /* Layout: sticky top bar → intro with manager → system tiles → sticky search/tabs → image-forward product grid (2/3/4 cols) → reference section; bottom sheets for product and request */
 :root{
-  --bg:#F3F1F7; --surface:#FFFFFF; --sunk:#ECE8F3; --line:#DDD6E8; --photo:#FFFFFF;
+  --bg:#FFFFFF; --surface:#FFFFFF; --sunk:#F4F1F9; --line:#DDD6E8; --photo:#FFFFFF;
   --ink:#1C1430; --ink-2:#3A3150; --muted:#6C6480; --faint:#9A93AB;
   --brand:#2D1B53; --on-brand:#FFFFFF; --accent:#7A55AE; --accent-soft:#EDE5F7; --lilac:#B79AD6;
   --ok:#1E7F55; --ok-soft:#E1F2EA; --warn:#94590A; --warn-soft:#FBEFDC;
@@ -14,18 +14,7 @@
   --f:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
   --r:16px; --r-s:10px;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#120B22; --surface:#1B1330; --sunk:#241A3D; --line:#33284D; --photo:#F4F1F8;
-  --ink:#EEE9F6; --ink-2:#D2C9E2; --muted:#A398B8; --faint:#776D8C;
-  --brand:#B79AD6; --on-brand:#1A1030; --accent:#C3A7E6; --accent-soft:#2E2148; --lilac:#B79AD6;
-  --ok:#4CC08A; --ok-soft:#15302A; --warn:#F0A64A; --warn-soft:#33260F;
-  --on-ink:#140C24; --scrim:rgba(0,0,0,.62); --err:#F07A63; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#120B22; --surface:#1B1330; --sunk:#241A3D; --line:#33284D; --photo:#F4F1F8;
-  --ink:#EEE9F6; --ink-2:#D2C9E2; --muted:#A398B8; --faint:#776D8C;
-  --brand:#B79AD6; --on-brand:#1A1030; --accent:#C3A7E6; --accent-soft:#2E2148; --lilac:#B79AD6;
-  --ok:#4CC08A; --ok-soft:#15302A; --warn:#F0A64A; --warn-soft:#33260F;
-  --on-ink:#140C24; --scrim:rgba(0,0,0,.62); --err:#F07A63; color-scheme:dark}
+:root{color-scheme:light}
 *{box-sizing:border-box}
 html{scroll-padding-top:120px}
 body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--f);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
