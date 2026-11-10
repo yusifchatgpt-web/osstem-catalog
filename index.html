@@ -198,7 +198,7 @@ main{padding-bottom:20px}
 @keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}}
-.sh-top{position:sticky;top:0;z-index:2;display:flex;justify-content:flex-end;padding:6px 0 0}
+.sh-top{position:sticky;top:0;z-index:2;display:flex;justify-content:flex-end;padding:6px 0 8px;margin-bottom:-4px;background:linear-gradient(var(--surface) 78%,transparent)}
 .grab{position:absolute;left:50%;top:6px;translate:-50% 0;width:40px;height:4px;border-radius:2px;background:var(--line)}
 @media(min-width:760px){.grab{display:none}}
 .x{width:38px;height:38px;border-radius:50%;background:var(--sunk);display:grid;place-items:center}
@@ -252,6 +252,9 @@ main{padding-bottom:20px}
 .field label{font-size:13px;font-weight:500;color:var(--muted)}
 .field input,.field textarea{width:100%;min-height:48px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:16px}
 .field textarea{min-height:76px;resize:vertical}
+.sel{position:relative}
+.sel select{width:100%;min-height:48px;padding:0 40px 0 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:16px;-webkit-appearance:none;appearance:none}
+.sel::after{content:"";position:absolute;right:16px;top:50%;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
 .two{display:grid;gap:0 10px}
 @media(min-width:560px){.two{grid-template-columns:1fr 1fr}}
 .err{color:var(--err);font-size:13px;margin-top:10px}
@@ -552,9 +555,11 @@ $("#list").addEventListener("click", e => {
 });
 
 /* ---------- cart ---------- */
-let cart = [], form = {name:"",clinic:"",city:"",phone:"",comment:""};
+const CITIES = ["Ростов-на-Дону","Азов","Таганрог","Новочеркасск","Новошахтинск","Сальск","ДНР","ЛНР","Другой город"];
+let cart = [], form = {clinic:"",city:CITIES[0],phone:"",comment:""};
 const STORE = "osstem-cart-v3";
 try { const s = JSON.parse(localStorage.getItem(STORE)||"null"); if (s){ cart=(s.cart||[]).filter(i=>byId[i.id]); Object.assign(form,s.form||{}); } } catch(e){}
+if (!CITIES.includes(form.city)) form.city=CITIES[0];
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify({cart,form})); } catch(e){} };
 const qtyOf = id => cart.filter(i=>i.id===id).reduce((a,i)=>a+i.qty,0);
 const cartSum = () => cart.reduce((a,i)=>a+(i.price||0)*i.qty,0);
@@ -679,14 +684,15 @@ function openCart(){
     <form id="f" novalidate>
       <div class="lbl">Контакты</div>
       <div class="two">
-        <div class="field"><label for="fName">Врач, ФИО</label><input id="fName" autocomplete="name" value="${esc(form.name)}" placeholder="Иванов Сергей Петрович"></div>
-        <div class="field"><label for="fPhone">Телефон</label><input id="fPhone" type="tel" autocomplete="tel" inputmode="tel" value="${esc(form.phone)}" placeholder="+7 900 000-00-00"></div>
         <div class="field"><label for="fClinic">Клиника</label><input id="fClinic" autocomplete="organization" value="${esc(form.clinic)}" placeholder="Название клиники"></div>
-        <div class="field"><label for="fCity">Город</label><input id="fCity" value="${esc(form.city)}" placeholder="Ростов-на-Дону"></div>
+        <div class="field"><label for="fPhone">Телефон</label><input id="fPhone" type="tel" autocomplete="tel" inputmode="tel" value="${esc(form.phone)}" placeholder="+7 900 000-00-00"></div>
+      </div>
+      <div class="field"><label for="fCity">Город</label><div class="sel"><select id="fCity">${CITIES.map(c=>`<option${c===form.city?" selected":""}>${esc(c)}</option>`).join("")}</select></div></div>
+      <div>
       </div>
       <div class="field"><label for="fComment">Комментарий</label><textarea id="fComment" placeholder="Сроки, позиции не из каталога, удобное время для звонка">${esc(form.comment)}</textarea></div>
       <div class="mgr-line"><span class="ava">${esc(M.name[0])}</span><span>Ваш персональный менеджер: <b>${esc(M.name)}</b></span></div>
-      <div class="err" id="err" hidden>Укажите имя и телефон, чтобы менеджер мог связаться с вами.</div>
+      <div class="err" id="err" hidden>Укажите клинику и телефон, чтобы мы могли связаться с вами.</div>
       <button class="big" type="submit">Отправить заявку</button>
     </form>`);
   $("#lines").addEventListener("click", e=>{
@@ -696,11 +702,12 @@ function openCart(){
     save(); renderList(); renderBar(); openCart();
   });
   $("#more").onclick=closeSheet;
-  const map={fName:"name",fClinic:"clinic",fCity:"city",fPhone:"phone",fComment:"comment"};
+  const map={fClinic:"clinic",fCity:"city",fPhone:"phone",fComment:"comment"};
+  $("#fCity").addEventListener("change",e=>{form.city=e.target.value;save();});
   Object.entries(map).forEach(([id,k])=>$("#"+id).addEventListener("input",e=>{form[k]=e.target.value;save();}));
   $("#f").addEventListener("submit", e=>{
     e.preventDefault();
-    if (!form.name.trim() || digits(form.phone).length<10){ $("#err").hidden=false; return; }
+    if (!form.clinic.trim() || digits(form.phone).length<10){ $("#err").hidden=false; return; }
     openSend();
   });
 }
@@ -708,8 +715,7 @@ $("#openCart").addEventListener("click", openCart);
 
 function buildMessage(){
   const lines = cart.map((it,i)=>{const p=byId[it.id];return `${i+1}. ${p.t}${it.label?" — "+it.label:""}${it.code?" ["+it.code+"]":""}\n   ${it.qty} шт × ${rub(it.price)} = ${rub((it.price||0)*it.qty)}`;});
-  const o=[`ЗАЯВКА · каталог Dental Market · менеджер: ${M.name}`,"",`Врач: ${form.name.trim()}`];
-  if (form.clinic.trim()) o.push(`Клиника: ${form.clinic.trim()}`);
+  const o=[`ЗАЯВКА · каталог Dental Market · менеджер: ${M.name}`,"",`Клиника: ${form.clinic.trim()}`];
   if (form.city.trim()) o.push(`Город: ${form.city.trim()}`);
   o.push(`Телефон: ${form.phone.trim()}`,"","Позиции:",...lines,"",`Итого по прайсу 03/2026: ${rub(cartSum())}`);
   if (form.comment.trim()) o.push("",`Комментарий: ${form.comment.trim()}`);
