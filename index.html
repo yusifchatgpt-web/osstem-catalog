@@ -302,6 +302,7 @@ main{padding-bottom:20px}
 .sendlist a,.sendlist button{height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:16px;text-decoration:none}
 .wa{background:#1F8F55;color:#fff}
 .tg{background:#2481CC;color:#fff}
+.mx{background:linear-gradient(135deg,#3B5BFF,#9B3BFF);color:#fff}
 .cp{background:var(--sunk);color:var(--ink)}
 pre.msg{white-space:pre-wrap;font:400 12.5px/1.55 var(--mono);background:var(--sunk);border-radius:12px;padding:14px;margin:0;user-select:all;overflow-x:auto}
 .ok-ic{width:60px;height:60px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;margin-top:10px}
@@ -434,13 +435,15 @@ pre.msg{white-space:pre-wrap;font:400 12.5px/1.55 var(--mono);background:var(--s
    Менеджеры: ссылка с ?m=yusif или ?m=vasif показывает нужного менеджера,
    и его имя попадает в заявку. Все заявки уходят на один аккаунт INBOX. */
 const MANAGERS = {
-  yusif: { name: "Юсиф", dat: "Юсифу", area: "Ростов-на-Дону", phone: "" },
-  vasif: { name: "Васиф", dat: "Васифу", area: "Ростов-на-Дону", phone: "" }
+  yusif: { name: "Юсиф", dat: "Юсифу", area: "Ростов-на-Дону", phone: "", max: "https://max.ru/u/f9LHodD0cOJUF7OPViwx17_lWMaBSXB4iWYUIOj67k00b-VvToPSmP8ISrc" },
+  vasif: { name: "Васиф", dat: "Васифу", area: "Ростов-на-Дону", phone: "", max: "" }
 };
 const DEFAULT_MANAGER = "yusif";
 const INBOX = {
   whatsapp: "",           // номер, куда приходят все заявки: 79XXXXXXXXX
-  telegram: "dm_osstem"   // Telegram Dental Market (username без @)
+  telegram: "dm_osstem",  // Telegram Dental Market (username без @)
+  max: "",                // ссылка на профиль офиса в MAX: https://max.ru/u/...
+  officePhone: "+7 (919) 889-02-22"
 };
 const DEALER = {
   name: "Dental Market",
@@ -518,9 +521,12 @@ function renderManager(){
     ${M.phone?`<div class="mgr-phone">${esc(M.phone)}</div>`:""}
     <div class="mgr-actions">
       ${tel?`<a class="btn btn-line" href="tel:+${tel}">${I.phone}Позвонить</a>`:""}
-      ${INBOX.whatsapp?`<a class="btn btn-line" href="https://wa.me/${digits(INBOX.whatsapp)}?text=${encodeURIComponent("Здравствуйте! Вопрос по каталогу Osstem. Менеджер: "+M.name)}" target="_blank" rel="noopener">${I.chat}Написать</a>`:(INBOX.telegram?`<a class="btn btn-line" href="https://t.me/${INBOX.telegram}" target="_blank" rel="noopener">${I.chat}Написать</a>`:"")}
-      <button class="btn btn-ink" type="button" id="toCat">Открыть каталог</button>
-    </div>`;
+      ${M.max?`<a class="btn btn-ink" href="${M.max}" target="_blank" rel="noopener">${I.chat}Написать ${esc(M.dat||M.name)} в MAX</a>`:""}
+      ${INBOX.max?`<a class="btn btn-line" href="${INBOX.max}" target="_blank" rel="noopener">Оформить заявку через офис</a>`:""}
+      ${!M.max&&!INBOX.max&&INBOX.telegram?`<a class="btn btn-line" href="https://t.me/${INBOX.telegram}" target="_blank" rel="noopener">${I.chat}Написать</a>`:""}
+      <button class="btn btn-line" type="button" id="toCat">Открыть каталог</button>
+    </div>
+    ${INBOX.max?`<p class="mgr-note">Офис Dental Market в MAX: <span class="mono">${esc(INBOX.officePhone)}</span></p>`:""}`;
   $("#toCat").onclick = () => scrollToEl($("#rail"));
 }
 const motion = () => matchMedia("(prefers-reduced-motion:reduce)").matches ? "auto" : "smooth";
@@ -791,17 +797,19 @@ function openSend(){
     <h2 style="margin-top:14px">Заявка собрана</h2>
     <p class="lead">Отправьте её в Dental Market: текст уже готов, в нём ваши контакты и состав заказа.</p>
     <div class="sendlist">
+      ${INBOX.max?`<a class="mx" id="maxBtn" href="${INBOX.max}" target="_blank" rel="noopener">${I.chat}Отправить в офис через MAX</a>`:""}
       ${wa?`<a class="wa" href="${wa}" target="_blank" rel="noopener">${I.chat}Отправить в WhatsApp</a>`:""}
       ${tg?`<a class="tg" id="tgBtn" href="${tg}" target="_blank" rel="noopener">Отправить в Telegram</a>`:""}
       <button class="cp" type="button" id="cp">Скопировать текст</button>
     </div>
-    ${tg?`<p class="hint">Для Telegram текст копируется автоматически: вставьте его в чат.</p>`:""}
+    ${INBOX.max||tg?`<p class="hint">Текст заявки копируется автоматически: в открывшемся чате просто вставьте его и отправьте.</p>`:""}
     ${!wa&&!tg?`<p class="hint">Скопируйте текст и отправьте в Dental Market.</p>`:""}
     <div class="lbl">Текст заявки</div>
     <pre class="msg" id="msg">${esc(msg)}</pre>
     <button class="ghost" type="button" id="newReq">Очистить и начать заново</button>`);
   $("#cp").onclick=e=>copyText(msg,e.currentTarget);
   if (tg) $("#tgBtn").addEventListener("click",()=>copyText(msg));
+  if (INBOX.max) $("#maxBtn").addEventListener("click",()=>copyText(msg));
   $("#newReq").onclick=()=>{ cart=[]; form.comment=""; save(); renderList(); renderBar(); closeSheet(); };
 }
 
