@@ -555,7 +555,7 @@ $("#list").addEventListener("click", e => {
 });
 
 /* ---------- cart ---------- */
-const CITIES = ["Ростов-на-Дону","Азов","Таганрог","Новочеркасск","Новошахтинск","Сальск","ДНР","ЛНР","Другой город"];
+const CITIES = ["Ростов-на-Дону","Азов","Таганрог","Новочеркасск","Новошахтинск","Сальск","Мариуполь","ДНР","ЛНР"];
 let cart = [], form = {clinic:"",city:CITIES[0],phone:"",comment:""};
 const STORE = "osstem-cart-v3";
 try { const s = JSON.parse(localStorage.getItem(STORE)||"null"); if (s){ cart=(s.cart||[]).filter(i=>byId[i.id]); Object.assign(form,s.form||{}); } } catch(e){}
