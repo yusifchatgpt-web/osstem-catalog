@@ -278,6 +278,7 @@ i.pl.pl-M{background:var(--plM-i)}i.pl.pl-R{background:var(--plR-i)}i.pl.pl-W{ba
 .qty output{min-width:30px;text-align:center;font:500 16px var(--mono)}
 .add{flex:1;height:54px;border-radius:14px;background:var(--brand);color:var(--on-brand);font-weight:700;font-size:16px}
 .add:disabled{opacity:.35;cursor:not-allowed}
+.pd{font-size:12px;line-height:1.45;color:var(--muted);margin:10px 0 0;text-align:center}.pd a{color:var(--accent)}
 .hint{font-size:13px;color:var(--muted);margin-top:8px;min-height:1em}
 .giftbox{margin-top:14px;border-radius:14px;background:var(--accent-soft);padding:14px;display:flex;flex-direction:column;gap:10px}
 .giftbox .gh{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.4;color:var(--brand)}
@@ -440,7 +441,7 @@ pre.msg{white-space:pre-wrap;font:400 12.5px/1.55 var(--mono);background:var(--s
         <div class="docs" id="docs"></div>
       </div>
     </div>
-    <div class="foot"><b>Dental Market</b><span>официальный дилер Osstem Implant</span><a class="mono" href="tel:+79198890222">+7 (919) 889-02-22</a><a href="https://dm-osstem.ru" target="_blank" rel="noopener">dm-osstem.ru</a></div>
+    <div class="foot"><b>Dental Market</b><span>официальный дилер Osstem Implant</span><a class="mono" href="tel:+79198890222">+7 (919) 889-02-22</a><a href="https://dm-osstem.ru" target="_blank" rel="noopener">dm-osstem.ru</a><a href="policy.html">Политика обработки персональных данных</a></div>
     <p class="legal">Продукция профессионального назначения, предназначена для использования в стоматологических медицинских организациях квалифицированным медицинским персоналом. Цены по прайс-листу Osstem Implant, версия 03/2026, итоговая стоимость уточняется при оформлении заказа.</p>
   </section>
 </div></div>
@@ -811,6 +812,7 @@ function openCart(){
       <div class="mgr-line"><span class="ava">${esc(M.name[0])}</span><span>Ваш персональный менеджер: <b>${esc(M.name)}</b></span></div>
       <div class="err" id="err" hidden>Укажите организацию (ООО или ИП) и телефон, чтобы мы могли связаться с вами.</div>
       <button class="big" type="submit">Отправить заявку</button>
+      <p class="pd">Нажимая «Отправить заявку», вы даёте <a href="consent.html" target="_blank" rel="noopener">согласие на обработку персональных данных</a> и соглашаетесь с <a href="policy.html" target="_blank" rel="noopener">политикой обработки персональных данных</a>.</p>
     </form>`);
   $("#lines").addEventListener("click", e=>{
     const t=e.target.closest("button"); if(!t) return;
