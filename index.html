@@ -380,7 +380,7 @@ pre.msg{white-space:pre-wrap;font:400 12.5px/1.55 var(--mono);background:var(--s
         <ol class="how">
           <li>Найдите позицию через поиск или разделы. Артикул из прайса тоже подходит.</li>
           <li>Выберите размер: для имплантов сначала диаметр, потом длину. Артикул подставится сам.</li>
-          <li>Добавьте всё нужное в заявку, укажите клинику и телефон и отправьте. Мы свяжемся с вами и всё уточним.</li>
+          <li>Добавьте всё нужное в заявку, укажите ООО и телефон и отправьте. Мы свяжемся с вами и всё уточним.</li>
         </ol>
       </div>
       <div class="card">
@@ -793,7 +793,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("#lb").hidden
 function openCart(){
   if (!cart.length){ closeSheet(); return; }
   openSheet(`
-    <h2>Заявка</h2><p class="lead">Проверьте состав и оставьте контакты клиники.</p>
+    <h2>Заявка</h2><p class="lead">Проверьте состав и укажите организацию и телефон.</p>
     <div id="lines">${cart.map((it,i)=>{const p=byId[it.id];return `<div class="line"><span class="tph">${p.img?`<img src="${p.img}" alt="">`:""}</span><div><b>${esc(p.t)}</b><small>${esc([it.label,it.code].filter(Boolean).join(" · "))}</small><small class="num">${rub(it.price)} × ${it.qty} = ${rub((it.price||0)*it.qty)}</small></div>
       <div class="qty"><button type="button" data-d="${i}" aria-label="Меньше">−</button><output>${it.qty}</output><button type="button" data-i="${i}" aria-label="Больше">+</button></div></div>`}).join("")}</div>
     <div class="total"><span>Итого</span><b class="num">${rub(cartSum())}</b></div>
@@ -801,7 +801,7 @@ function openCart(){
     <form id="f" novalidate>
       <div class="lbl">Контакты</div>
       <div class="two">
-        <div class="field"><label for="fClinic">Клиника</label><input id="fClinic" autocomplete="organization" value="${esc(form.clinic)}" placeholder="Название клиники"></div>
+        <div class="field"><label for="fClinic">Организация (ООО)</label><input id="fClinic" autocomplete="organization" value="${esc(form.clinic)}" placeholder="ООО «Название»"></div>
         <div class="field"><label for="fPhone">Телефон</label><input id="fPhone" type="tel" autocomplete="tel" inputmode="tel" value="${esc(form.phone)}" placeholder="+7 900 000-00-00"></div>
       </div>
       <div class="field"><label for="fCity">Город</label><div class="sel"><select id="fCity">${CITIES.map(c=>`<option${c===form.city?" selected":""}>${esc(c)}</option>`).join("")}</select></div></div>
@@ -809,7 +809,7 @@ function openCart(){
       </div>
       <div class="field"><label for="fComment">Комментарий</label><textarea id="fComment" placeholder="Сроки, позиции не из каталога, удобное время для звонка">${esc(form.comment)}</textarea></div>
       <div class="mgr-line"><span class="ava">${esc(M.name[0])}</span><span>Ваш персональный менеджер: <b>${esc(M.name)}</b></span></div>
-      <div class="err" id="err" hidden>Укажите клинику и телефон, чтобы мы могли связаться с вами.</div>
+      <div class="err" id="err" hidden>Укажите ООО и телефон, чтобы мы могли связаться с вами.</div>
       <button class="big" type="submit">Отправить заявку</button>
     </form>`);
   $("#lines").addEventListener("click", e=>{
@@ -832,7 +832,7 @@ $("#openCart").addEventListener("click", openCart);
 
 function buildMessage(){
   const lines = cart.map((it,i)=>{const p=byId[it.id];return `${i+1}. ${p.t}${it.label?" — "+it.label:""}${it.code?" ["+it.code+"]":""}\n   ${it.qty} шт × ${rub(it.price)} = ${rub((it.price||0)*it.qty)}`;});
-  const o=[`ЗАЯВКА · каталог Dental Market · менеджер: ${M.name}`,"",`Клиника: ${form.clinic.trim()}`];
+  const o=[`ЗАЯВКА · каталог Dental Market · менеджер: ${M.name}`,"",`ООО: ${form.clinic.trim()}`];
   if (form.city.trim()) o.push(`Город: ${form.city.trim()}`);
   o.push(`Телефон: ${form.phone.trim()}`,"","Позиции:",...lines,"",`Итого: ${rub(cartSum())}`);
   if (form.comment.trim()) o.push("",`Комментарий: ${form.comment.trim()}`);
