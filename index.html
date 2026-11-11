@@ -329,6 +329,13 @@ i.pl.pl-M{background:var(--plM-i)}i.pl.pl-R{background:var(--plR-i)}i.pl.pl-W{ba
 pre.msg{white-space:pre-wrap;font:400 12.5px/1.55 var(--mono);background:var(--sunk);border-radius:12px;padding:14px;margin:0;user-select:all;overflow-x:auto}
 .ok-ic{width:60px;height:60px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;margin-top:10px}
 .lead{color:var(--muted);margin-top:8px}
+.pdn{position:fixed;left:0;right:0;bottom:0;z-index:45;padding:0 max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));animation:up .3s cubic-bezier(.2,.8,.2,1)}
+.pdn-in{max-width:640px;margin:0 auto;display:flex;gap:12px;align-items:center;background:var(--brand);color:#EDE5F7;border-radius:16px;padding:14px 14px 14px 16px;box-shadow:0 12px 32px rgba(20,10,40,.28)}
+.pdn-in svg{flex:none;color:var(--lilac)}
+.pdn-in p{margin:0;font-size:13px;line-height:1.45;min-width:0;flex:1}
+.pdn-in a{color:#fff}
+.pdn-in button{flex:none;border:0;border-radius:10px;background:#fff;color:var(--brand);font:600 14px var(--f);padding:10px 14px;cursor:pointer}
+@media (max-width:420px){.pdn-in{flex-wrap:wrap}.pdn-in p{flex-basis:calc(100% - 34px)}.pdn-in button{width:100%}}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));translate:-50% 0;z-index:60;background:var(--ink);color:var(--on-ink);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);white-space:nowrap}
 </style>
 
@@ -450,6 +457,10 @@ pre.msg{white-space:pre-wrap;font:400 12.5px/1.55 var(--mono);background:var(--s
 <div class="scrim" id="scrim" hidden></div>
 <section class="sheet gut" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Карточка"></section>
 <div class="toast" id="toast" hidden role="status"></div>
+<div class="pdn" id="pdn" hidden role="dialog" aria-live="polite" aria-label="Уведомление о персональных данных"><div class="pdn-in">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+  <p>Каталог не использует cookies и аналитику. Корзина хранится только на вашем устройстве. Контакты, которые вы укажете в заявке, обрабатываются в соответствии с <a href="policy.html" target="_blank" rel="noopener">политикой обработки персональных данных</a>.</p>
+  <button type="button" id="pdnOk">Понятно</button></div></div>
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Фото товара"><div class="lb-top"><b id="lbT"></b><button class="x" type="button" id="lbX" aria-label="Закрыть фото"></button></div><div class="lb-stage" id="lbS"><img id="lbI" alt=""></div><div class="lb-bot"><button type="button" id="lbZ" aria-pressed="false">Увеличить ×2</button></div></div>
 
 <script>
@@ -916,5 +927,8 @@ $("#promo").addEventListener("click",e=>{
 });
 
 renderManager(); renderPromos(); renderSystems(); renderTabs(); renderList(); renderBar();
+(()=>{ let seen=false; try{ seen=localStorage.getItem("osstem-pdn")==="1"; }catch(e){}
+  if (seen) return; const p=$("#pdn"); setTimeout(()=>{p.hidden=false;},600);
+  $("#pdnOk").onclick=()=>{ p.hidden=true; try{ localStorage.setItem("osstem-pdn","1"); }catch(e){} }; })();
 </script>
 </body></html>
