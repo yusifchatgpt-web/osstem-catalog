@@ -442,7 +442,7 @@ const DEFAULT_MANAGER = "yusif";
 const INBOX = {
   whatsapp: "",           // номер, куда приходят все заявки: 79XXXXXXXXX
   telegram: "dm_osstem",  // Telegram Dental Market (username без @)
-  max: "",                // ссылка на профиль офиса в MAX: https://max.ru/u/...
+  max: "https://max.ru/u/f9LHodD0cOJXtUF3TY2kqZmA1_LUxeWJddUfKU9aiGEM1rAxJun7UKt3V-k",  // офис в MAX
   officePhone: "+7 (919) 889-02-22"
 };
 const DEALER = {
@@ -791,7 +791,7 @@ async function copyText(t,btn){
 function openSend(){
   const msg=buildMessage();
   const wa = INBOX.whatsapp ? `https://wa.me/${digits(INBOX.whatsapp)}?text=${encodeURIComponent(msg)}` : "";
-  const tg = INBOX.telegram ? `https://t.me/${INBOX.telegram.replace("@","")}` : "";
+  const tg = (!INBOX.max && INBOX.telegram) ? `https://t.me/${INBOX.telegram.replace("@","")}` : "";
   openSheet(`
     <div class="ok-ic">${I.check}</div>
     <h2 style="margin-top:14px">Заявка собрана</h2>
