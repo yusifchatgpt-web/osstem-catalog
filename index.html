@@ -276,6 +276,7 @@ main{padding-bottom:20px}
 .giftbox .gr small{display:block;color:var(--muted);font-size:12px}
 .giftbox .gr b.num{white-space:nowrap}
 .giftbox .padd{flex:none}
+.giftbox .gall{border:0;background:none;padding:2px 2px 0;text-align:left;font:600 13.5px inherit;font-family:inherit;color:var(--accent);cursor:pointer}
 .badge.gift{background:var(--accent-soft);color:var(--accent)}
 .spec{margin-top:20px;border-top:1px solid var(--line)}
 .spec div{display:grid;grid-template-columns:120px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
@@ -574,6 +575,17 @@ function giftBox(id){
   return `<div class="giftbox" id="giftbox"><div class="gh"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M12 9v12M3 13h18M12 9c-2-4-6-4-6-1s6 1 6 1 6 2 6-1-4-3-6 1"/></svg><span><b>${what} можно получить в подарок</b> при покупке ${nsTxt} имплантатов TS III SA с адаптером</span></div>
     ${L.map(a=>`<div class="gr"><div>${a.n} имплантатов + подарок<small>${a.grp==="new"?"для новых клиентов":"акция для всех клиентов"}</small><b class="num">${rub(a.price)}</b></div><button class="padd ${inCart(a.id)?"in":""}" type="button" data-gp="${a.id}">${inCart(a.id)?"В заявке ✓":"В заявку"}</button></div>`).join("")}</div>`;
 }
+const PROMO_IMPL = [0];
+function implBox(id){
+  if(!PROMO_IMPL.includes(id)) return "";
+  const rows = PROMOS.filter(a=>a.grp==="imp"||a.grp==="new");
+  const rest = PROMOS.length-rows.length;
+  const best = Math.min(...PROMOS.filter(a=>a.grp==="imp").map(a=>Math.round(a.price/a.n)));
+  return `<div class="giftbox" id="giftbox"><div class="gh"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span><b>Выгоднее по акции:</b> от ${rub(best)} за имплантат вместо ${rub(UNIT)}. Акции действуют на TS III SA с адаптером</span></div>
+    ${rows.map(a=>{ const u=Math.round(a.price/a.n), sv=UNIT*a.n-a.price;
+      return `<div class="gr"><div>${a.n} имплантатов${a.gift?" + 122 Taper Kit в подарок":""}<small>${a.grp==="new"?"для новых клиентов":(sv>0?`${rub(u)} за шт · экономия ${rub(sv)}`:"")}</small><b class="num">${rub(a.price)}</b></div><button class="padd ${inCart(a.id)?"in":""}" type="button" data-gp="${a.id}">${inCart(a.id)?"В заявке ✓":"В заявку"}</button></div>`;}).join("")}
+    <button class="gall" type="button" data-allpromo="1">Ещё ${rest} ${plural(rest,["акция","акции","акций"])} с хирургическим набором или оборудованием в подарок →</button></div>`;
+}
 D.forEach(p => { p.s = (p.t+" "+p.d+" "+p.v.map(v=>v[0]+" "+v[1]).join(" ")).toLowerCase().replace(/ё/g,"е"); p.order = (p.n||[]).some(n=>/под заказ/i.test(n)); });
 const counts = {}; D.forEach(p => counts[p.c]=(counts[p.c]||0)+1);
 const CATS2 = CATS.filter(c=>counts[c.id]);
@@ -613,7 +625,7 @@ function tile(p){
   const n = qtyOf(p.id);
   const vc = p.v.length>1 ? `${p.v.length} ${plural(p.v.length,["вариант","варианта","вариантов"])}` : (p.v[0][0]||"");
   return `<button class="p" type="button" data-p="${p.id}">
-    ${n?`<span class="badge">в заявке · ${n}</span>`:(GIFTOF[p.id]?`<span class="badge gift">можно в подарок</span>`:(p.order?`<span class="badge order">есть под заказ</span>`:""))}
+    ${n?`<span class="badge">в заявке · ${n}</span>`:(GIFTOF[p.id]?`<span class="badge gift">можно в подарок</span>`:PROMO_IMPL.includes(p.id)?`<span class="badge gift">есть акции</span>`:(p.order?`<span class="badge order">есть под заказ</span>`:""))}
     <span class="ph">${p.img?`<img src="${p.img}" alt="" loading="lazy" decoding="async">`:NOIMG}</span>
     <span class="bd"><h3>${esc(p.t)}</h3><span class="vc">${esc(vc)}</span><span class="pr num">${priceLine(p)}</span></span></button>`;
 }
@@ -697,9 +709,9 @@ function openProduct(id){
     <div id="pick"></div><div id="picked"></div>
     <div class="buy"><div class="qty"><button type="button" id="mn" aria-label="Меньше">−</button><output id="qv">1</output><button type="button" id="pl" aria-label="Больше">+</button></div><button class="add" type="button" id="add">В заявку</button></div>
     <div class="hint" id="h"></div>
-    ${giftBox(id)}
+    ${giftBox(id)}${implBox(id)}
     ${specRows(p)}`);
-  const gb=$("#giftbox"); if (gb) gb.onclick=e=>{ const b=e.target.closest("[data-gp]"); if(!b) return; if(!inCart(+b.dataset.gp)) addPromo(+b.dataset.gp); b.classList.add("in"); b.textContent="В заявке ✓"; };
+  const gb=$("#giftbox"); if (gb) gb.onclick=e=>{ if(e.target.closest("[data-allpromo]")){ closeSheet(); pgrp="kit"; renderPromos(); scrollToEl($("#promo")); return; } const b=e.target.closest("[data-gp]"); if(!b) return; if(!inCart(+b.dataset.gp)) addPromo(+b.dataset.gp); b.classList.add("in"); b.textContent="В заявке ✓"; };
   let curBig = p.big||p.img;
   const shph=$("#shph"); if (p.img){ const open=()=>openLightbox(curBig,p.t); shph.onclick=open; shph.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}}; }
   const th=$("#thumbs"); if (th) th.onclick=e=>{ const b=e.target.closest("button"); if(!b) return; const g=p.g[+b.dataset.g]; curBig=g[1]; $("#shimg").src=g[1]; th.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b)); };
