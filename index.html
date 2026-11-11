@@ -802,7 +802,7 @@ function openCart(){
       <div class="lbl">Контакты</div>
       <div class="two">
         <div class="field"><label for="fClinic">Организация (ООО / ИП)</label><input id="fClinic" autocomplete="organization" value="${esc(form.clinic)}" placeholder="ООО «Название» или ИП Фамилия"></div>
-        <div class="field"><label for="fPhone">Телефон</label><input id="fPhone" type="tel" autocomplete="tel" inputmode="tel" value="${esc(form.phone)}" placeholder="+7 900 000-00-00"></div>
+        <div class="field"><label for="fPhone">Телефон</label><input id="fPhone" type="tel" autocomplete="tel" inputmode="tel" value="${esc(form.phone)}" placeholder="+7 (900) 000-00-00" maxlength="20"></div>
       </div>
       <div class="field"><label for="fCity">Город</label><div class="sel"><select id="fCity">${CITIES.map(c=>`<option${c===form.city?" selected":""}>${esc(c)}</option>`).join("")}</select></div></div>
       <div>
@@ -821,15 +821,25 @@ function openCart(){
   $("#more").onclick=closeSheet;
   const map={fClinic:"clinic",fCity:"city",fPhone:"phone",fComment:"comment"};
   $("#fCity").addEventListener("change",e=>{form.city=e.target.value;save();});
-  Object.entries(map).forEach(([id,k])=>$("#"+id).addEventListener("input",e=>{form[k]=e.target.value;save();}));
+  Object.entries(map).forEach(([id,k])=>{ if(id!=="fPhone") $("#"+id).addEventListener("input",e=>{form[k]=e.target.value;save();}); });
+  const ph=$("#fPhone");
+  const fmt=v=>{ const d=natPhone(v);
+    let r="+7"; if(d.length) r+=" ("+d.slice(0,3); if(d.length>=3) r+=")"; if(d.length>3) r+=" "+d.slice(3,6); if(d.length>6) r+="-"+d.slice(6,8); if(d.length>8) r+="-"+d.slice(8,10); return r; };
+  ph.value = form.phone ? fmt(form.phone) : "";
+  ph.addEventListener("focus",()=>{ if(!ph.value) ph.value="+7 "; });
+  ph.addEventListener("blur",()=>{ if(digits(ph.value).length<=1){ ph.value=""; form.phone=""; save(); } });
+  ph.addEventListener("input",e=>{ const del=e.inputType&&e.inputType.startsWith("delete"); let v=fmt(ph.value);
+    if(del){ v=v.replace(/[\s()\-]+$/,""); }
+    ph.value=v; form.phone=v; save(); });
   $("#f").addEventListener("submit", e=>{
     e.preventDefault();
-    if (!form.clinic.trim() || digits(form.phone).length<10){ $("#err").hidden=false; return; }
+    if (!form.clinic.trim() || natPhone(form.phone).length!==10){ $("#err").hidden=false; return; }
     openSend();
   });
 }
 $("#openCart").addEventListener("click", openCart);
 
+function natPhone(v){ v=String(v||"").trim(); let d=digits(v); if(v.startsWith("+7")||/^[78]$/.test(d)||(/^[78]/.test(d)&&d.length>10)) d=d.slice(1); if(d.length>10&&/^[78]/.test(d)) d=d.slice(1); return d.slice(0,10); }
 function buildMessage(){
   const lines = cart.map((it,i)=>{const p=byId[it.id];return `${i+1}. ${p.t}${it.label?" — "+it.label:""}${it.code?" ["+it.code+"]":""}\n   ${it.qty} шт × ${rub(it.price)} = ${rub((it.price||0)*it.qty)}`;});
   const o=[`ЗАЯВКА · каталог Dental Market · менеджер: ${M.name}`,"",`Организация: ${form.clinic.trim()}`];
