@@ -521,8 +521,8 @@ function renderManager(){
     ${M.phone?`<div class="mgr-phone">${esc(M.phone)}</div>`:""}
     <div class="mgr-actions">
       ${tel?`<a class="btn btn-line" href="tel:+${tel}">${I.phone}Позвонить</a>`:""}
-      ${M.max?`<a class="btn btn-ink" href="${M.max}" target="_blank" rel="noopener">${I.chat}Написать ${esc(M.dat||M.name)} в MAX</a>`:""}
-      ${INBOX.max?`<a class="btn btn-line" href="${INBOX.max}" target="_blank" rel="noopener">Оформить заявку через офис</a>`:""}
+      ${M.max?`<a class="btn btn-ink" href="${M.max}" target="_blank" rel="noopener">${I.chat}Чат с менеджером</a>`:""}
+      ${INBOX.max?`<a class="btn btn-line" href="${INBOX.max}" target="_blank" rel="noopener">Заказ через офис</a>`:""}
       ${!M.max&&!INBOX.max&&INBOX.telegram?`<a class="btn btn-line" href="https://t.me/${INBOX.telegram}" target="_blank" rel="noopener">${I.chat}Написать</a>`:""}
       <button class="btn btn-line" type="button" id="toCat">Открыть каталог</button>
     </div>
