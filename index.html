@@ -251,6 +251,17 @@ main{padding-bottom:20px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{min-height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font:500 14px var(--mono)}
 .chip[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+:root{--plM:#FFF3B0;--plM-b:#E9D25A;--plM-i:#F5DC3C;--plR:#E2F0CC;--plR-b:#A9D17A;--plR-i:#A6D46E;--plW:#D3EEF7;--plW-b:#8CCBE0;--plW-i:#7FC8E4}
+.chip.plc{display:inline-flex;align-items:center;gap:7px;padding-left:7px}
+.chip.pl-M{background:var(--plM);border-color:var(--plM-b)}.chip.pl-R{background:var(--plR);border-color:var(--plR-b)}.chip.pl-W{background:var(--plW);border-color:var(--plW-b)}
+.chip.plc[aria-pressed="true"]{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+i.pl{font:700 11px/1 var(--mono);font-style:normal;width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;color:#1C1430;flex:none}
+i.pl.pl-M{background:var(--plM-i)}i.pl.pl-R{background:var(--plR-i)}i.pl.pl-W{background:var(--plW-i)}
+.pleg{display:inline-flex;gap:12px;margin-left:10px;font:500 12px var(--sans,inherit);text-transform:none;letter-spacing:0;color:var(--muted);vertical-align:middle}
+.pleg span{display:inline-flex;align-items:center;gap:5px}.pleg i.pl{width:18px;height:18px;font-size:10px}
+.pnote{display:flex;gap:10px;align-items:flex-start;margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13px;line-height:1.4;color:#1C1430}
+.pnote.pl-M{background:var(--plM)}.pnote.pl-R{background:var(--plR)}.pnote.pl-W{background:var(--plW)}
+.picked i.pl{margin-left:8px}
 .vf{width:100%;height:42px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:16px;margin-bottom:8px}
 .vlist{display:grid;gap:6px;max-height:320px;overflow-y:auto}
 .vrow{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;text-align:left}
@@ -566,6 +577,12 @@ PROMOS.forEach(a=>{
   D.push(pp); byId[a.id]=pp;
 });
 
+const PLAT = {
+  M:{n:"Mini", ru:"мини", tip:"Формирователи, абатменты и ортопедию подбирайте с маркировкой Mini (M)."},
+  R:{n:"Regular", ru:"стандарт", tip:"Формирователи, абатменты и ортопедию подбирайте с маркировкой Regular (R)."},
+  W:{n:"Wide", ru:"широкий", tip:"Формирователи, абатменты и ортопедию подбирайте с маркировкой Wide (W)."}
+};
+function platOf(c){ c=c||""; if(/^B?TS[34]M|^AET3M/.test(c)) return "M"; if(/^B?TS[34]S|^AET3R|^ASS3R/.test(c)) return "R"; if(/^ASS3W/.test(c)) return "W"; return ""; }
 const GIFTOF = {}; PROMOS.forEach(a=>{ if(a.item) (GIFTOF[a.item]=GIFTOF[a.item]||[]).push(a); });
 function giftBox(id){
   const L=GIFTOF[id]; if(!L) return "";
@@ -695,7 +712,9 @@ function specRows(p){
 
 function openProduct(id){
   const p=byId[id]; let qty=1, chosen = p.v.length===1?0:-1;
-  const V=p.v.map((v,i)=>({i,code:v[0],label:v[1],price:v[2],parts:v[1]?v[1].split(" · "):[]}));
+  const V=p.v.map((v,i)=>({i,code:v[0],label:v[1],price:v[2],parts:v[1]?v[1].split(" · "):[],pl:platOf(v[0])}));
+  const hasPl=V.some(v=>v.pl);
+  if (hasPl){ const m={}; V.forEach(v=>{(m[v.parts[0]]=m[v.parts[0]]||new Set()).add(v.pl);}); V.forEach(v=>{ if(v.pl&&m[v.parts[0]].size>1){ v.parts[0]+=" "+v.pl; v.label=v.parts.join(" · "); } }); }
   const k=V[0].parts.length;
   const chipMode = V.length>1 && k>=1 && k<=3 && V.every(v=>v.label&&v.parts.length===k) && new Set(V.map(v=>v.label)).size===V.length;
   const DN = dimNames(V,k,p.t), sel=[];
@@ -724,7 +743,10 @@ function openProduct(id){
       for (let d=0; d<k; d++){
         const opts=[...new Set(pool.map(v=>v.parts[d]))].sort(byNum);
         if (opts.length===1 && sel[d]==null) sel[d]=opts[0];
-        html += `<div class="lbl">${DN[d]}</div><div class="chips" data-d="${d}">${opts.map(o=>`<button type="button" class="chip" data-o="${esc(o)}" aria-pressed="${sel[d]===o}">${esc(o)}</button>`).join("")}</div>`;
+        const plo = o => d===0&&hasPl ? (pool.find(v=>v.parts[0]===o)||{}).pl||"" : "";
+        const used = d===0&&hasPl ? [...new Set(opts.map(plo).filter(Boolean))] : [];
+        html += `<div class="lbl">${DN[d]}${used.length?`<span class="pleg">${used.map(x=>`<span><i class="pl pl-${x}">${x}</i>${PLAT[x].n}</span>`).join("")}</span>`:""}</div><div class="chips" data-d="${d}">${opts.map(o=>{const x=plo(o); return `<button type="button" class="chip${x?" plc pl-"+x:""}" data-o="${esc(o)}" aria-pressed="${sel[d]===o}" ${x?`title="${PLAT[x].ru}"`:""}>${x?`<i class="pl pl-${x}">${x}</i>`:""}${esc(x?o.replace(" "+x,""):o)}</button>`;}).join("")}</div>`;
+        if (d===0 && hasPl && sel[0]!=null){ const x=plo(sel[0]); if (x) html += `<div class="pnote pl-${x}"><i class="pl pl-${x}">${x}</i><span><b>${esc(sel[0].replace(" "+x,""))} — ${PLAT[x].ru} (${PLAT[x].n})</b><br>${PLAT[x].tip}</span></div>`; }
         if (sel[d]==null) break;
         pool=pool.filter(v=>v.parts[d]===sel[d]);
       }
@@ -738,7 +760,7 @@ function openProduct(id){
   }
   function renderPicked(){
     const v = chosen>=0?V[chosen]:null;
-    $("#picked").innerHTML = v&&v.code ? `<div class="picked"><span>Артикул</span><b>${esc(v.code)}</b></div>` : "";
+    $("#picked").innerHTML = v&&v.code ? `<div class="picked"><span>Артикул</span><b style="display:inline-flex;align-items:center">${esc(v.code)}${v.pl?`<i class="pl pl-${v.pl}" title="${PLAT[v.pl].n}">${v.pl}</i>`:""}</b></div>` : "";
     if (v&&v.price!=null){ $("#bp").textContent=rub(v.price); $("#bpn").textContent=""; }
     $("#add").disabled=!v;
     $("#h").textContent = v ? "" : (chipMode ? `Выберите: ${DN.filter((_,d)=>sel[d]==null).join(", ").toLowerCase()}` : "Выберите вариант из списка");
