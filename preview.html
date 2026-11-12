@@ -493,16 +493,20 @@ html.pg-open,html.pg-open body{overflow:hidden}
 .mgr small,.mgr .mgr-note{color:#CFC5E2}
 .mgr-h small{font-size:13px}
 .pdn{z-index:75}
-.rgp{position:fixed;inset:0;z-index:90;background:rgba(26,19,48,.55);display:grid;place-items:end center;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-@media(min-width:600px){.rgp{place-items:center}}
-.rgp-in{width:100%;max-width:440px;background:var(--surface);border-radius:20px;padding:20px;display:grid;gap:10px;animation:up .25s cubic-bezier(.2,.8,.2,1)}
-.rgp-in .ava{background:var(--brand);color:#fff;font-size:13px}
-.rgp-in .mgr-h small{color:var(--muted)}
-.rgp-in h2{font-size:22px;font-weight:800;margin-top:6px}
-.rgp-in p{color:var(--muted)}
-.rgp-in button{display:grid;text-align:left;gap:2px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);font-size:16px}
-.rgp-in button:hover{border-color:var(--accent)}
-.rgp-in button small{color:var(--muted);font-size:13.5px}
+html.rgp-open,html.rgp-open body{overflow:hidden}
+.rgp{position:fixed;inset:0;z-index:95;background:var(--bg);overflow-y:auto;display:grid;place-items:center;padding:calc(24px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
+.rgp-in{width:100%;max-width:440px;display:grid;justify-items:center;text-align:center;gap:6px}
+.rgp-logo{width:72px;height:72px;border-radius:18px}
+.rgp-brand{display:grid;margin-top:8px}.rgp-brand b{font-weight:800;letter-spacing:.08em;font-size:15px}.rgp-brand span{color:var(--muted);font-size:13.5px}
+.rgp-in h1{font-size:28px;font-weight:800;letter-spacing:-.02em;margin-top:26px}
+.rgp-in p{color:var(--muted);font-size:16px;max-width:34ch}
+.rgp-list{display:grid;gap:10px;width:100%;margin-top:22px}
+.rgp-list button{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:18px 18px 18px 20px;border-radius:16px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-size:18px}
+.rgp-list button span{display:grid;gap:3px;min-width:0}
+.rgp-list button b{font-weight:700}
+.rgp-list button small{color:var(--muted);font-size:14px}
+.rgp-list button svg{flex:none;color:var(--accent)}
+.rgp-list button:hover,.rgp-list button:focus-visible{border-color:var(--accent);background:var(--accent-soft)}
 /* help page */
 .pg .help-sec{padding-top:0}
 .pg .help-grid{margin-top:4px}
@@ -706,13 +710,12 @@ const I = {
 
 /* ---------- manager ---------- */
 function pickManager(){
+  /* ?m=менеджер — регион менеджера; ?r=регион — регион без менеджера; без параметров — только выбор региона */
   let key = "", reg = "";
   try { const u=new URLSearchParams(location.search); key=(u.get("m")||"").toLowerCase(); reg=(u.get("r")||"").toLowerCase(); } catch(e){}
-  if (!MANAGERS[key] && REGIONS[reg]) { key=""; try{ localStorage.setItem("osstem-mgr",""); localStorage.setItem("osstem-region",reg);}catch(e){} return {key:"",reg}; }
-  if (!MANAGERS[key]) { try { key = localStorage.getItem("osstem-mgr") || ""; } catch(e){} }
-  if (MANAGERS[key]) { try { localStorage.setItem("osstem-mgr", key); localStorage.setItem("osstem-region", MANAGERS[key].region); } catch(e){} return {key, reg:MANAGERS[key].region}; }
-  try { reg = localStorage.getItem("osstem-region") || ""; } catch(e){}
-  return {key:"", reg: REGIONS[reg] ? reg : ""};
+  if (MANAGERS[key]) return {key, reg:MANAGERS[key].region};
+  if (REGIONS[reg]) return {key:"", reg};
+  return {key:"", reg:""};
 }
 const PICK = pickManager(), MK = PICK.key, M = MANAGERS[MK] || null;
 const NEED_REGION = !PICK.reg, RK = PICK.reg || "rostov", RG = REGIONS[RK], INBOX = RG.inbox;
@@ -742,16 +745,16 @@ function renderManager(){
   const ch=$("#chReg"); if (ch) ch.onclick = showRegionPicker;
 }
 function showRegionPicker(){
-  const el=document.createElement("div"); el.className="rgp"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true");
-  el.innerHTML=`<div class="rgp-in"><div class="mgr-h" style="margin-bottom:6px"><span class="ava">DM</span><div><b>Dental Market</b><small>официальный дилер Osstem</small></div></div>
-    <h2>Выберите ваш регион</h2><p>Заявка уйдёт в офис Dental Market вашего региона.</p>
-    ${Object.entries(REGIONS).map(([k,r])=>`<button type="button" data-rg="${k}"><b>${esc(r.short)}</b><small>${esc(r.cities.slice(0,4).join(", "))}…</small></button>`).join("")}</div>`;
-  document.body.appendChild(el);
-  el.onclick=e=>{ const b=e.target.closest("[data-rg]"); if(!b) return; try{ localStorage.setItem("osstem-region",b.dataset.rg); localStorage.setItem("osstem-mgr",""); }catch(err){} const u=new URL(location.href); u.searchParams.delete("m"); u.searchParams.delete("r"); location.replace(u.toString()); };
+  const el=document.createElement("div"); el.className="rgp"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true"); el.setAttribute("aria-label","Выбор региона");
+  el.innerHTML=`<div class="rgp-in">
+    <img class="rgp-logo" src="${document.querySelector('#top .logo').src}" alt="Dental Market" width="64" height="64">
+    <div class="rgp-brand"><b>DENTAL MARKET</b><span>официальный дилер Osstem Implant</span></div>
+    <h1>Выберите ваш регион</h1>
+    <p>Каталог, цены и заявки работают через офис Dental Market вашего региона.</p>
+    <div class="rgp-list">${Object.entries(REGIONS).map(([k,r])=>`<button type="button" data-rg="${k}"><span><b>${esc(r.short)}</b><small>${esc(r.cities.slice(0,5).join(", "))}…</small></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>`).join("")}</div></div>`;
+  document.body.appendChild(el); document.documentElement.classList.add("rgp-open");
+  el.onclick=e=>{ const b=e.target.closest("[data-rg]"); if(!b) return; const u=new URL(location.href); u.searchParams.delete("m"); u.searchParams.set("r",b.dataset.rg); u.hash=""; location.replace(u.toString()); };
 }
-const motion = () => matchMedia("(prefers-reduced-motion:reduce)").matches ? "auto" : "smooth";
-function scrollToEl(el){ const y = el.getBoundingClientRect().top + scrollY - 56; scrollTo({top:y,behavior:motion()}); }
-
 /* ---------- data prep ---------- */
 const byId = Object.fromEntries(D.map(p=>[p.id,p]));
 const UNIT = 5990;
@@ -1279,6 +1282,6 @@ try { history.scrollRestoration = "manual"; } catch(e){}
 renderManager(); renderPromos(); renderSystems(); renderBar();
 trail = [curH()]; dir = 0; route();
 (()=>{ let seen=false; try{ seen=localStorage.getItem("osstem-pdn")==="1"; }catch(e){}
-  if (seen) return; const p=$("#pdn"); setTimeout(()=>{p.hidden=false;},600);
+  if (seen || NEED_REGION) return; const p=$("#pdn"); setTimeout(()=>{p.hidden=false;},600);
   $("#pdnOk").onclick=()=>{ p.hidden=true; try{ localStorage.setItem("osstem-pdn","1"); }catch(e){} }; })();
 </script></body></html>
