@@ -292,7 +292,7 @@ i.pl.pl-M{background:var(--plM-i)}i.pl.pl-R{background:var(--plR-i)}i.pl.pl-W{ba
 .rel{margin-top:22px}.rel .lbl{margin-bottom:8px}
 .rr{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line);cursor:pointer}
 .rph{flex:none;width:52px;height:52px;border-radius:10px;border:1px solid var(--line);background:#fff;overflow:hidden;display:grid;place-items:center}.rph img{max-width:90%;max-height:90%;object-fit:contain}
-.rt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.rt b{font-weight:600;font-size:14px;line-height:1.3}.rt small{color:var(--muted);font-size:12.5px}
+.rt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.rt b{font-weight:600;font-size:14px;line-height:1.3}.rt em{font-style:normal;font-size:12.5px;font-weight:600;color:var(--accent)}.rt small{color:var(--muted);font-size:12.5px}
 .radd{flex:none;min-width:44px;height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--brand);font:600 15px var(--f);cursor:pointer}
 .radd.in{background:var(--ok-soft);border-color:transparent;color:var(--ok);font-size:13px}
 .badge.gift{background:var(--accent-soft);color:var(--accent)}
@@ -604,8 +604,10 @@ function platOf(c){ c=c||""; if(/^TSPTA\d{4}M$/.test(c)) return "M"; if(/^TSPTA\
 const REL = { 32: { t:"Компоненты абатмента Port", ids:[33,34,35,36,37,38,39,40,41,42,43,44,45] } };
 function relBox(id){
   const R=REL[id]; if(!R) return "";
-  return `<div class="rel"><div class="lbl">${esc(R.t)}</div>${R.ids.filter(i=>byId[i]).map(i=>{const q=byId[i], multi=q.v.length>1, c=cart.find(x=>x.id===i);
-    return `<div class="rr" data-rid="${i}"><span class="rph">${q.img?`<img src="${q.img}" alt="" loading="lazy">`:""}</span><span class="rt"><b>${esc(q.t)}</b><small>${multi?"от ":""}${rub(q.pm||q.p)}${q.v[0][0]&&!multi?` · <span class="mono">${esc(q.v[0][0])}</span>`:""}</small></span><button type="button" class="radd${c&&!multi?" in":""}" data-ra="${i}" aria-label="${multi?"Выбрать вариант":"Добавить в заявку"}">${multi?"Выбрать":(c?`✓ ${c.qty}`:"+")}</button></div>`;}).join("")}</div>`;
+  const rows=[]; R.ids.filter(i=>byId[i]).forEach(i=>byId[i].v.map((v,vi)=>[i,vi,v]).sort((x,y)=>(x[2][1]?1:0)-(y[2][1]?1:0)).forEach(r=>rows.push(r)));
+  return `<div class="rel"><div class="lbl">${esc(R.t)}</div>${rows.map(([i,vi,v])=>{const q=byId[i], c=cart.find(x=>x.id===i&&x.vi===vi);
+    const sub = q.v.length>1 ? (v[1]||"стандартный") : "";
+    return `<div class="rr" data-rid="${i}" data-vi="${vi}"><span class="rph">${q.img?`<img src="${q.img}" alt="" loading="lazy">`:""}</span><span class="rt"><b>${esc(q.t)}</b>${sub?`<em>${esc(sub)}</em>`:""}<small>${rub(v[2])}${v[0]?` · <span class="mono">${esc(v[0])}</span>`:""}</small></span><button type="button" class="radd${c?" in":""}" data-ra="1" aria-label="Добавить в заявку">${c?`✓ ${c.qty}`:"+"}</button></div>`;}).join("")}</div>`;
 }
 const GIFTOF = {}; PROMOS.forEach(a=>{ if(a.item) (GIFTOF[a.item]=GIFTOF[a.item]||[]).push(a); });
 function giftBox(id){
@@ -756,9 +758,9 @@ function openProduct(id){
     ${specRows(p)}
     ${relBox(id)}`);
   const rb=$(".rel"); if (rb) rb.onclick=e=>{ const b=e.target.closest("[data-ra]"), row=e.target.closest("[data-rid]"); if(!row) return; const i=+row.dataset.rid, q=byId[i];
-    if (!b || q.v.length>1){ openProduct(i); return; }
-    const ex=cart.find(x=>x.id===i); if (ex) ex.qty++; else cart.push({id:i,vi:0,code:q.v[0][0],label:q.v[0][1],price:q.v[0][2],qty:1});
-    save(); renderList(); renderBar(); b.classList.add("in"); b.textContent="✓ "+cart.find(x=>x.id===i).qty; toast("Добавлено в заявку"); };
+    if (!b){ openProduct(i); return; } const vi=+row.dataset.vi, v=q.v[vi];
+    let ex=cart.find(x=>x.id===i&&x.vi===vi); if (ex) ex.qty++; else cart.push(ex={id:i,vi,code:v[0],label:v[1],price:v[2],qty:1});
+    save(); renderList(); renderBar(); b.classList.add("in"); b.textContent="✓ "+ex.qty; toast("Добавлено в заявку"); };
   const gb=$("#giftbox"); if (gb) gb.onclick=e=>{ if(e.target.closest("[data-allpromo]")){ closeSheet(); pgrp="kit"; renderPromos(); scrollToEl($("#promo")); return; } const b=e.target.closest("[data-gp]"); if(!b) return; if(!inCart(+b.dataset.gp)) addPromo(+b.dataset.gp); b.classList.add("in"); b.textContent="В заявке ✓"; };
   let curBig = p.big||p.img;
   const shph=$("#shph"); if (p.img){ const open=()=>openLightbox(curBig,p.t); shph.onclick=open; shph.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}}; }
