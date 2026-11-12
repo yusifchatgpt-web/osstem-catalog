@@ -493,6 +493,16 @@ html.pg-open,html.pg-open body{overflow:hidden}
 .mgr small,.mgr .mgr-note{color:#CFC5E2}
 .mgr-h small{font-size:13px}
 .pdn{z-index:75}
+.rgp{position:fixed;inset:0;z-index:90;background:rgba(26,19,48,.55);display:grid;place-items:end center;padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+@media(min-width:600px){.rgp{place-items:center}}
+.rgp-in{width:100%;max-width:440px;background:var(--surface);border-radius:20px;padding:20px;display:grid;gap:10px;animation:up .25s cubic-bezier(.2,.8,.2,1)}
+.rgp-in .ava{background:var(--brand);color:#fff;font-size:13px}
+.rgp-in .mgr-h small{color:var(--muted)}
+.rgp-in h2{font-size:22px;font-weight:800;margin-top:6px}
+.rgp-in p{color:var(--muted)}
+.rgp-in button{display:grid;text-align:left;gap:2px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);font-size:16px}
+.rgp-in button:hover{border-color:var(--accent)}
+.rgp-in button small{color:var(--muted);font-size:13.5px}
 /* help page */
 .pg .help-sec{padding-top:0}
 .pg .help-grid{margin-top:4px}
@@ -534,7 +544,7 @@ html.pg-open,html.pg-open body{overflow:hidden}
 
   <footer class="home-foot">
     <div class="row"><b>Dental Market</b><span>официальный дилер Osstem Implant</span></div>
-    <div class="row"><span class="num">+7 (919) 889-02-22</span><a href="https://dm-osstem.ru" target="_blank" rel="noopener">dm-osstem.ru</a><button type="button" data-go="help" style="color:var(--ink-2);text-decoration:underline">Контакты и справка</button><a href="policy.html">Политика обработки персональных данных</a></div>
+    <div class="row"><span class="num" id="footTel"></span><a href="https://dm-osstem.ru" target="_blank" rel="noopener">dm-osstem.ru</a><button type="button" data-go="help" style="color:var(--ink-2);text-decoration:underline">Контакты и справка</button><a href="policy.html">Политика обработки персональных данных</a></div>
     <p class="legal">Продукция профессионального назначения, предназначена для использования в стоматологических медицинских организациях квалифицированным медицинским персоналом. Цены по прайс-листу Osstem Implant, версия 03/2026, итоговая стоимость уточняется при оформлении заказа.</p>
   </footer>
 </div>
@@ -626,28 +636,30 @@ html.pg-open,html.pg-open body{overflow:hidden}
    Менеджеры: ссылка с ?m=yusif или ?m=vasif показывает нужного менеджера,
    и его имя попадает в заявку. Все заявки уходят на один аккаунт INBOX. */
 const MANAGERS = {
-  yusif: { name: "Юсиф", dat: "Юсифу", area: "Ростов-на-Дону", phone: "", max: "https://max.ru/u/f9LHodD0cOJUF7OPViwx17_lWMaBSXB4iWYUIOj67k00b-VvToPSmP8ISrc" },
-  vasif: { name: "Васиф", dat: "Васифу", area: "Ростов-на-Дону", phone: "", max: "https://max.ru/u/f9LHodD0cOKKSNMfxKdfbcT3fXJhOTkMC-gP3_CkOqjY2cwaTeyPUbLWxMA" }
+  yusif:  { name: "Юсиф",   region: "rostov", phone: "", max: "https://max.ru/u/f9LHodD0cOJUF7OPViwx17_lWMaBSXB4iWYUIOj67k00b-VvToPSmP8ISrc" },
+  vasif:  { name: "Васиф",  region: "rostov", phone: "", max: "https://max.ru/u/f9LHodD0cOKKSNMfxKdfbcT3fXJhOTkMC-gP3_CkOqjY2cwaTeyPUbLWxMA" },
+  oksana: { name: "Оксана", region: "mo",     phone: "", max: "" }
 };
-const DEFAULT_MANAGER = "yusif";
-const INBOX = {
-  whatsapp: "",           // номер, куда приходят все заявки: 79XXXXXXXXX
-  telegram: "dm_osstem",  // Telegram Dental Market (username без @)
-  max: "https://max.ru/u/f9LHodD0cOJXtUF3TY2kqZmA1_LUxeWJddUfKU9aiGEM1rAxJun7UKt3V-k",  // офис в MAX
-  officePhone: "+7 (919) 889-02-22"
+/* Регионы: у каждого свой офис, свой чат для заявок и своя территория. Заявка уходит только в офис своего региона. */
+const REGIONS = {
+  rostov: { name: "Ростов-на-Дону", short: "Ростов-на-Дону и юг",
+    cityLabel: "Город",
+    cities: ["Ростов-на-Дону","Азов","Таганрог","Новочеркасск","Новошахтинск","Сальск","Мариуполь","ДНР","ЛНР"],
+    inbox: { max: "https://max.ru/u/f9LHodD0cOJXtUF3TY2kqZmA1_LUxeWJddUfKU9aiGEM1rAxJun7UKt3V-k", phone: "+7 (919) 889-02-22", whatsapp: "", telegram: "" },
+    office: ["Ростов-на-Дону", "ул. Ленина, 59"] },
+  mo: { name: "Московская область", short: "Московская область",
+    cityLabel: "Город или район",
+    cities: ["Балашиха","Бронницы","Железнодорожный","Жуковский","Лыткарино","Орехово-Зуево","Электрогорск","Егорьевский район","Люберецкий район","Ногинский район","Орехово-Зуевский район","Павло-Посадский район","Раменский район","Шатурский район"],
+    inbox: { max: "", phone: "", whatsapp: "", telegram: "" },   // TODO: чат офиса МО в MAX и телефон офиса
+    office: ["Московская обл.", "г. Балашиха, мкр. Железнодорожный, ул. Маяковского, 24А"] }
 };
 const DEALER = {
   name: "Dental Market",
   about: "Официальный дилер Osstem Implant",
-  phone: "+7 (919) 889-02-22",
   hours: "Пн–Пт, 10:00–18:00",
   site: "https://dm-osstem.ru",
   telegram: "https://t.me/dm_osstem",
   vk: "https://vk.com/id389223932",
-  offices: [
-    ["Ростов-на-Дону", "ул. Ленина, 59"],
-    ["Московская обл.", "г. Балашиха, мкр. Железнодорожный, ул. Маяковского, 24А"]
-  ]
 };
 /* ================================== */
 const CATS = [{"id": "ts", "name": "Система TS"}, {"id": "ss", "name": "Система SS"}, {"id": "os", "name": "Ортодонтия OS"}, {"id": "ms", "name": "Система MS"}, {"id": "bio", "name": "Материалы для НКР"}, {"id": "kits", "name": "Хирургические наборы"}, {"id": "tools", "name": "Инструменты"}, {"id": "eq", "name": "Оборудование"}, {"id": "care", "name": "Уход за полостью рта"}];
@@ -694,31 +706,48 @@ const I = {
 
 /* ---------- manager ---------- */
 function pickManager(){
-  let key = "";
-  try { key = (new URLSearchParams(location.search).get("m") || "").toLowerCase(); } catch(e){}
-  if (!key) key = (location.hash||"").replace("#","").toLowerCase();
+  let key = "", reg = "";
+  try { const u=new URLSearchParams(location.search); key=(u.get("m")||"").toLowerCase(); reg=(u.get("r")||"").toLowerCase(); } catch(e){}
+  if (!MANAGERS[key] && REGIONS[reg]) { key=""; try{ localStorage.setItem("osstem-mgr",""); localStorage.setItem("osstem-region",reg);}catch(e){} return {key:"",reg}; }
   if (!MANAGERS[key]) { try { key = localStorage.getItem("osstem-mgr") || ""; } catch(e){} }
-  if (!MANAGERS[key]) key = DEFAULT_MANAGER;
-  try { localStorage.setItem("osstem-mgr", key); } catch(e){}
-  return key;
+  if (MANAGERS[key]) { try { localStorage.setItem("osstem-mgr", key); localStorage.setItem("osstem-region", MANAGERS[key].region); } catch(e){} return {key, reg:MANAGERS[key].region}; }
+  try { reg = localStorage.getItem("osstem-region") || ""; } catch(e){}
+  return {key:"", reg: REGIONS[reg] ? reg : ""};
 }
-const MK = pickManager(), M = MANAGERS[MK];
+const PICK = pickManager(), MK = PICK.key, M = MANAGERS[MK] || null;
+const NEED_REGION = !PICK.reg, RK = PICK.reg || "rostov", RG = REGIONS[RK], INBOX = RG.inbox;
 const digits = s => String(s||"").replace(/\D/g,"");
 
 function renderManager(){
-  const tel = digits(M.phone);
-  $("#mgr").innerHTML = `
-    <div class="mgr-h"><span class="ava">${esc(M.name[0])}</span><div><small>Ваш персональный менеджер</small><b>${esc(M.name)}</b><small>${esc(M.area)}</small></div></div>
+  const tel = M ? digits(M.phone) : "";
+  $("#mgr").innerHTML = M ? `
+    <div class="mgr-h"><span class="ava">${esc(M.name[0])}</span><div><small>Ваш персональный менеджер</small><b>${esc(M.name)}</b><small>${esc(RG.name)}</small></div></div>
     ${M.phone?`<div class="mgr-phone">${esc(M.phone)}</div>`:""}
     <div class="mgr-actions">
       ${tel?`<a class="btn btn-line" href="tel:+${tel}">${I.phone}Позвонить</a>`:""}
       ${M.max?`<a class="btn btn-ink" href="${M.max}" target="_blank" rel="noopener">${I.chat}Чат с менеджером</a>`:""}
       ${INBOX.max?`<a class="btn btn-line" href="${INBOX.max}" target="_blank" rel="noopener">Заказ через офис</a>`:""}
-      ${!M.max&&!INBOX.max&&INBOX.telegram?`<a class="btn btn-line" href="https://t.me/${INBOX.telegram}" target="_blank" rel="noopener">${I.chat}Написать</a>`:""}
       <button class="btn btn-line" type="button" id="toCat">Открыть каталог</button>
     </div>
-    ${INBOX.max?`<p class="mgr-note">Офис Dental Market в MAX: <span class="mono">${esc(INBOX.officePhone)}</span></p>`:""}`;
+    ${INBOX.phone?`<p class="mgr-note">Офис Dental Market (${esc(RG.name)}): <span class="num">${esc(INBOX.phone)}</span></p>`:""}`
+  : `
+    <div class="mgr-h"><span class="ava">DM</span><div><small>Ваш офис</small><b>Dental Market</b><small>${esc(RG.name)}</small></div></div>
+    <div class="mgr-actions">
+      ${INBOX.phone?`<a class="btn btn-line" href="tel:+${digits(INBOX.phone)}">${I.phone}Позвонить</a>`:""}
+      ${INBOX.max?`<a class="btn btn-ink" href="${INBOX.max}" target="_blank" rel="noopener">${I.chat}Написать в офис</a>`:""}
+      <button class="btn btn-line" type="button" id="toCat">Открыть каталог</button>
+    </div>
+    <p class="mgr-note">Регион: ${esc(RG.name)} · <button type="button" id="chReg" style="color:#fff;text-decoration:underline">сменить</button></p>`;
   $("#toCat").onclick = () => scrollToEl($("#sysSec"));
+  const ch=$("#chReg"); if (ch) ch.onclick = showRegionPicker;
+}
+function showRegionPicker(){
+  const el=document.createElement("div"); el.className="rgp"; el.setAttribute("role","dialog"); el.setAttribute("aria-modal","true");
+  el.innerHTML=`<div class="rgp-in"><div class="mgr-h" style="margin-bottom:6px"><span class="ava">DM</span><div><b>Dental Market</b><small>официальный дилер Osstem</small></div></div>
+    <h2>Выберите ваш регион</h2><p>Заявка уйдёт в офис Dental Market вашего региона.</p>
+    ${Object.entries(REGIONS).map(([k,r])=>`<button type="button" data-rg="${k}"><b>${esc(r.short)}</b><small>${esc(r.cities.slice(0,4).join(", "))}…</small></button>`).join("")}</div>`;
+  document.body.appendChild(el);
+  el.onclick=e=>{ const b=e.target.closest("[data-rg]"); if(!b) return; try{ localStorage.setItem("osstem-region",b.dataset.rg); localStorage.setItem("osstem-mgr",""); }catch(err){} const u=new URL(location.href); u.searchParams.delete("m"); u.searchParams.delete("r"); location.replace(u.toString()); };
 }
 const motion = () => matchMedia("(prefers-reduced-motion:reduce)").matches ? "auto" : "smooth";
 function scrollToEl(el){ const y = el.getBoundingClientRect().top + scrollY - 56; scrollTo({top:y,behavior:motion()}); }
@@ -954,17 +983,17 @@ function openHelp(){
   gridFn = null;
   page({title:"Справка и контакты", body:$("#helpTpl").innerHTML});
   $("#pg #dealer").innerHTML = `
-    <div><h4>Телефон</h4><div class="tel">${esc(DEALER.phone)}</div><p>${esc(DEALER.hours)}</p>
-      <div class="dealer-links"><a href="tel:+${digits(DEALER.phone)}">${I.phone}Позвонить</a></div></div>
-    <div><h4>Офисы</h4>${DEALER.offices.map(([c,a])=>`<p><b>${esc(c)}</b><br>${esc(a)}</p>`).join('<div style="height:8px"></div>')}</div>
+    <div><h4>Телефон офиса</h4>${INBOX.phone?`<div class="tel">${esc(INBOX.phone)}</div><p>${esc(DEALER.hours)}</p>
+      <div class="dealer-links"><a href="tel:+${digits(INBOX.phone)}">${I.phone}Позвонить</a></div>`:`<p>${esc(DEALER.hours)}</p>`}</div>
+    <div><h4>Офис</h4><p><b>${esc(RG.office[0])}</b><br>${esc(RG.office[1])}</p></div>
     <div><h4>Онлайн</h4><div class="dealer-links"><a href="${DEALER.site}" target="_blank" rel="noopener">dm-osstem.ru ${I.ext}</a><a href="${DEALER.telegram}" target="_blank" rel="noopener">Telegram</a><a href="${DEALER.vk}" target="_blank" rel="noopener">ВКонтакте</a></div></div>`;
   $("#pg #docs").innerHTML = DOCS.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener"><span>${esc(t)}</span>${I.ext}</a>`).join("");
 }
 
 /* ---------- cart state ---------- */
-const CITIES = ["Ростов-на-Дону","Азов","Таганрог","Новочеркасск","Новошахтинск","Сальск","Мариуполь","ДНР","ЛНР"];
+const CITIES = RG.cities;
 let cart = [], form = {clinic:"",city:CITIES[0],phone:"",comment:""};
-const STORE = "osstem-cart-v4-" + MK;
+const STORE = "osstem-cart-v4-" + (MK || "r-"+RK);
 try { const s = JSON.parse(localStorage.getItem(STORE)||"null"); if (s){ cart=(s.cart||[]).filter(i=>byId[i.id]); Object.assign(form,s.form||{}); } } catch(e){}
 if (!CITIES.includes(form.city)) form.city=CITIES[0];
 const save = () => { try { localStorage.setItem(STORE, JSON.stringify({cart,form})); } catch(e){} };
@@ -1120,9 +1149,9 @@ function openCart(){
         <div class="field"><label for="fClinic">Организация (ООО / ИП)</label><input id="fClinic" autocomplete="organization" value="${esc(form.clinic)}" placeholder="ООО «Название» или ИП Фамилия"></div>
         <div class="field"><label for="fPhone">Телефон</label><input id="fPhone" type="tel" autocomplete="tel" inputmode="tel" value="${esc(form.phone)}" placeholder="+7 (900) 000-00-00" maxlength="20"></div>
       </div>
-      <div class="field"><label for="fCity">Город</label><div class="sel"><select id="fCity">${CITIES.map(c=>`<option${c===form.city?" selected":""}>${esc(c)}</option>`).join("")}</select></div></div>
+      <div class="field"><label for="fCity">${esc(RG.cityLabel)}</label><div class="sel"><select id="fCity">${CITIES.map(c=>`<option${c===form.city?" selected":""}>${esc(c)}</option>`).join("")}</select></div></div>
       <div class="field"><label for="fComment">Комментарий</label><textarea id="fComment" placeholder="Сроки, позиции не из каталога, удобное время для звонка">${esc(form.comment)}</textarea></div>
-      <div class="mgr-line"><span class="ava">${esc(M.name[0])}</span><span>Ваш персональный менеджер: <b>${esc(M.name)}</b></span></div>
+      <div class="mgr-line"><span class="ava">${M?esc(M.name[0]):"DM"}</span><span>${M?`Ваш персональный менеджер: <b>${esc(M.name)}</b> · `:"Офис: "}${esc(RG.name)}</span></div>
       <p class="pd">Нажимая «Отправить заявку», вы даёте <a href="consent.html" target="_blank" rel="noopener">согласие на обработку персональных данных</a> и соглашаетесь с <a href="policy.html" target="_blank" rel="noopener">политикой обработки персональных данных</a>.</p>
     </form>`,
     foot:`<div class="foot-sum"><span id="fcnt"></span><b class="num" id="ftot"></b></div><button class="big ft" type="submit" form="f">Отправить заявку</button>`});
@@ -1167,8 +1196,8 @@ function openCart(){
 function natPhone(v){ v=String(v||"").trim(); let d=digits(v); if(v.startsWith("+7")||/^[78]$/.test(d)||(/^[78]/.test(d)&&d.length>10)) d=d.slice(1); if(d.length>10&&/^[78]/.test(d)) d=d.slice(1); return d.slice(0,10); }
 function buildMessage(){
   const lines = cart.map((it,i)=>{const p=byId[it.id];return `${i+1}. ${p.t}${it.label?" — "+it.label:""}${it.code?" ["+it.code+"]":""}\n   ${it.qty} шт × ${rub(it.price)} = ${rub((it.price||0)*it.qty)}`;});
-  const o=[`ЗАЯВКА · каталог Dental Market · менеджер: ${M.name}`,"",`Организация: ${form.clinic.trim()}`];
-  if (form.city.trim()) o.push(`Город: ${form.city.trim()}`);
+  const o=[`ЗАЯВКА · ${RG.name} · каталог Dental Market`,`Менеджер: ${M?M.name:"не указан"}`,"",`Организация: ${form.clinic.trim()}`];
+  if (form.city.trim()) o.push(`${RG.cityLabel}: ${form.city.trim()}`);
   o.push(`Телефон: ${form.phone.trim()}`,"","Позиции:",...lines,"",`Итого: ${rub(cartSum())}`);
   if (form.comment.trim()) o.push("",`Комментарий: ${form.comment.trim()}`);
   return o.join("\n");
@@ -1186,16 +1215,17 @@ function openSend(){
     <div class="ok-ic">${I.check}</div>
     <h2 style="margin-top:14px">Заявка собрана</h2>
     <p class="lead">Осталось отправить её в Dental Market. Текст уже готов: в нём ваши контакты и состав заказа.</p>
-    <ol class="how" style="margin-top:16px">
+    ${INBOX.max?`<ol class="how" style="margin-top:16px">
       <li>Нажмите кнопку ниже: текст скопируется, откроется чат офиса.</li>
       <li>В чате нажмите «Вставить» и отправьте сообщение.</li>
-    </ol>
+    </ol>`:""}
     <div class="sendlist">
       ${INBOX.max?`<a class="mx" id="maxBtn" href="${INBOX.max}" target="_blank" rel="noopener">${I.chat}Отправить в офис через MAX</a>`:""}
       ${wa?`<a class="wa" href="${wa}" target="_blank" rel="noopener">${I.chat}Отправить в WhatsApp</a>`:""}
       ${tg?`<a class="tg" id="tgBtn" href="${tg}" target="_blank" rel="noopener">Отправить в Telegram</a>`:""}
       <button class="cp" type="button" id="cp">Скопировать текст</button>
     </div>
+    ${!INBOX.max&&!wa&&!tg?`<p class="hint" style="margin-top:12px">Скопируйте текст и отправьте его ${M&&M.max?`<a href="${M.max}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">менеджеру ${esc(M.name)} в MAX</a>`:M?`менеджеру ${esc(M.name)}`:"в офис Dental Market"}${INBOX.phone?` или позвоните: ${esc(INBOX.phone)}`:""}.</p>`:""}
     <div class="lbl">Текст заявки</div>
     <pre class="msg" id="msg">${esc(msg)}</pre>
     <button class="ghost" type="button" id="editReq">← Изменить заявку</button>
@@ -1243,6 +1273,8 @@ $("#promo").addEventListener("click",e=>{
 });
 
 /* ---------- init ---------- */
+const ft=$("#footTel"); if (INBOX.phone) ft.textContent=INBOX.phone; else ft.remove();
+if (NEED_REGION) showRegionPicker();
 try { history.scrollRestoration = "manual"; } catch(e){}
 renderManager(); renderPromos(); renderSystems(); renderBar();
 trail = [curH()]; dir = 0; route();
